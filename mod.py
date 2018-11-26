@@ -47,8 +47,7 @@ while success:
 	success,image = vid.read()
 	if cnt%5 == 0:
 		(H, W) = image.shape[:2]
-		print(H)
-		print(W)
+		
 
 		ln = net.getLayerNames()
 		ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
@@ -105,6 +104,9 @@ while success:
 				arr.append(w)
 				arr.append(h)
 
+				print(x)
+				print(y)
+
 				ind = int(cnt/5)
 				if data_dict.get(ind) is None:
 					data_dict[ind] = {}
@@ -115,41 +117,41 @@ while success:
 					data_dict[ind][c] = arr
 
 				c = c+1
+
+				# generating sound begin
+				from struct import pack
+				from math import sin, pi
+				import wave
+				import random
+				from openal import *
+				from openal.al import *
+				from openal.alc import *
+
+				RATE=44100
 				
+				## GENERATE MONO FILE ##
+				path = str(c)+"test_mono1.wav"
+				wv = wave.open(path, 'w')
+				wv.setparams((1, 2, RATE, 0, 'NONE', 'not compressed'))
+				maxVol=2**15-1.0 #maximum amplitude
+				wvData=b""
+				for i in range(0, RATE*3):
+					wvData+=pack('h', round(maxVol*sin(i*2*pi*(i+1)*30/RATE))) #500Hz
+				wv.writeframes(wvData)
+				wv.close()
+				
+				file = oalOpen(path)
+				file.set_position((x/5, y/5, 0))
+				file.set_pitch((w*h)/1000)
+				file.play()
 
-
-
-			 
-		
-
-
-
-
-# print(idxs)
-		# area = -10
-		# area_pair=[]
-		# dim_pair=[]
-		# if len(idxs) > 0:
-		# 	for i in idxs.flatten():
-		# 			(x, y) = (boxes[i][0], boxes[i][1])
-		# 			(w, h) = (boxes[i][2], boxes[i][3])
-		# 			if w*h > area:
-		# 				area_pair = []
-		# 				dim_pair = []
-		# 				area_pair.append(w)
-		# 				area_pair.append(h)
-		# 				dim_pair.append(x)
-		# 				dim_pair.append(y)
-		# 				area = w*h
-		# print(area_pair)
-		# print(area) 
-
-		# if len(idxs) > 0:
-		# 	color = [0,0,255]
-		# 	cv2.rectangle(image, (dim_pair[0],dim_pair[1]), (dim_pair[0] + area_pair[0], dim_pair[1] + area_pair[1]), color, 2)		
-
-
-
+				# Context = alcGetCurrentContext()
+				# Device = alcGetContextsDevice(Context)
+				# alcMakeContextCurrent(None)
+				# alcDestroyContext(Context)
+				# alcCloseDevice(Device)
+				# generating soung ends
+				
 		if writer is None:
 		# initialize our video writer
 			fourcc = cv2.VideoWriter_fourcc(*"MJPG")
@@ -180,9 +182,9 @@ while success:
 
 
 	cnt = cnt+1	
-	
+	# if cnt ==100:
+		# break
+
 print(data_dict)
 writer.release()
 vid.release()
-
-
